@@ -17,8 +17,11 @@ impl State {
 				let camera = camera_from_rect(Rect { x: -1.0, y: -1.0, w: 2.0, h: 2.0 });
 				set_camera(&camera);
 				if button(Rect { x: -0.3, y: -0.5, w: 0.6, h: 0.2 }, DARKGRAY, "Darts", &camera, font, 0.15) {
-					new_state = Some(State::Darts(Darts {  }));
+					new_state = Some(State::Darts(Darts::new()));
 				}
+			}
+			Self::Darts(darts) => {
+				
 			}
 			_ => {}
 		}
