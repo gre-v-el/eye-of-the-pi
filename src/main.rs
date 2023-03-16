@@ -1,5 +1,6 @@
 mod state;
 mod darts;
+mod ui;
 
 use macroquad::prelude::*;
 use state::State;
@@ -7,10 +8,15 @@ use state::State;
 #[macroquad::main("eye of the pi")]
 async fn main() {
 
-	let state = State::Menu;
+	let mut state = State::Menu;
 
 	loop {
 		clear_background(BLACK);
+
+		if let Some(new_state) = state.update() {
+			state = new_state;
+		}
+
 		next_frame().await;
 	}
 }
