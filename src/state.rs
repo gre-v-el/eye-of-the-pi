@@ -105,7 +105,7 @@ impl State {
 			}
 			Self::Collisions(collisions, running) => {
 				if *running {
-					collisions.simulate(0.016);
+					collisions.simulate(0.003);
 				}
 				
 				let camera = camera_from_rect(Rect { x: -1.0, y: -1.0, w: 2.0, h: 2.0 });

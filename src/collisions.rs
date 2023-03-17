@@ -1,4 +1,6 @@
-use std::mem::{replace, swap};
+use std::mem::swap;
+
+use macroquad::{shapes::draw_line, prelude::*};
 
 pub struct Keyframe {
 	x1: f64,
@@ -58,6 +60,7 @@ impl Collisions {
 				swap(&mut self.prev_keyframe, &mut self.next_keyframe);
 				self.next_keyframe = Keyframe { x1: 0.0, x2: self.prev_keyframe.x2 + v2 * t };
 
+				self.prev_keyframe_time = self.next_keyframe_time;
 				self.next_keyframe_time += t;
 			}
 			else {
@@ -74,6 +77,7 @@ impl Collisions {
 				swap(&mut self.prev_keyframe, &mut self.next_keyframe);
 				self.next_keyframe = Keyframe { x1: self.prev_keyframe.x1 + v1 * t, x2: self.prev_keyframe.x2 + v2 * t };
 
+				self.prev_keyframe_time = self.next_keyframe_time;
 				self.next_keyframe_time += t;
 			}
 
@@ -82,6 +86,14 @@ impl Collisions {
 	}
 
 	pub fn draw(&self) {
-		
+		draw_line(-0.7, -0.9, -0.7, -0.4, 0.01, WHITE);
+		draw_line(0.7, -0.4, -0.7, -0.4, 0.01, WHITE);
+
+		let t = (self.simulation_time - self.prev_keyframe_time)/(self.next_keyframe_time - self.prev_keyframe_time);
+		let x1 = (t * self.next_keyframe.x1 + (1.0-t) * self.prev_keyframe.x1)/3.0 - 0.7;
+		let x2 = (t * self.next_keyframe.x2 + (1.0-t) * self.prev_keyframe.x2)/3.0 - 0.7;
+
+		draw_rectangle(x1 as f32, -0.5, 0.1, 0.1, BLUE);
+		draw_rectangle(x2 as f32 + 0.1, -0.6, 0.2, 0.2, BLUE);
 	}
 }
