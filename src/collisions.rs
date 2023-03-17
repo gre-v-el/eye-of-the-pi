@@ -27,7 +27,7 @@ impl Collisions {
 			next_keyframe_time: 1.0, 
 			prev_keyframe: Keyframe { x1: 1.0, x2: 2.0 }, 
 			next_keyframe: Keyframe { x1: 1.0, x2: 1.0 }, 
-			mass_ratio: 100.0,
+			mass_ratio,
 			finished: false,
 		}
 	}
@@ -48,7 +48,7 @@ impl Collisions {
 				let m2 = self.mass_ratio;
 	
 				let v1 = (m1 - m2)/(m1 + m2)*u1 + 2.0 * m2 / (m1 + m2)*u2;
-				let v2 = 2.0 * m2 / (m1 + m2) * u1 + (m2 - m1) / (m1 + m2) * u2;
+				let v2 = 2.0 * m1 / (m1 + m2) * u1 + (m2 - m1) / (m1 + m2) * u2;
 
 				let t = -self.next_keyframe.x1 / v1;
 
@@ -95,5 +95,7 @@ impl Collisions {
 
 		draw_rectangle(x1 as f32, -0.5, 0.1, 0.1, BLUE);
 		draw_rectangle(x2 as f32 + 0.1, -0.6, 0.2, 0.2, BLUE);
+
+		println!("{}", self.hits);
 	}
 }

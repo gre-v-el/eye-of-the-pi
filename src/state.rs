@@ -25,7 +25,7 @@ impl State {
 					new_state = Some(State::Toothpicks(Toothpicks::new(5, 0.2), false, 10));
 				}
 				if button(Rect { x: -0.3, y:  0.1, w: 0.6, h: 0.2 }, DARKGRAY, "Collisions", &camera, font, 0.15) {
-					new_state = Some(State::Collisions(Collisions::new(1.0), true));
+					new_state = Some(State::Collisions(Collisions::new(1000000000000.0), true));
 				}
 			}
 			Self::Darts(darts, running, amount) => {
