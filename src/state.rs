@@ -1,13 +1,12 @@
-use std::f64::consts::PI;
-
 use macroquad::prelude::*;
 
-use crate::{darts::Darts, ui::*, toothpicks::Toothpicks, error};
+use crate::{darts::Darts, ui::*, toothpicks::Toothpicks, error, collisions::Collisions};
 
 pub enum State {
 	Menu,
 	Darts(Darts, bool, usize),
 	Toothpicks(Toothpicks, bool, usize),
+	Collisions(Collisions, bool),
 }
 
 impl State {
@@ -24,6 +23,9 @@ impl State {
 				}
 				if button(Rect { x: -0.3, y: -0.2, w: 0.6, h: 0.2 }, DARKGRAY, "Toothpicks", &camera, font, 0.15) {
 					new_state = Some(State::Toothpicks(Toothpicks::new(5, 0.2), false, 10));
+				}
+				if button(Rect { x: -0.3, y:  0.1, w: 0.6, h: 0.2 }, DARKGRAY, "Collisions", &camera, font, 0.15) {
+					new_state = Some(State::Collisions(Collisions::new(1.0), true));
 				}
 			}
 			Self::Darts(darts, running, amount) => {
@@ -100,6 +102,16 @@ impl State {
 				let mut exp = (*amount as f32).log10();
 				slider(&mut exp, 0.0, 5.0, vec2(0.6, -0.2), 0.3, DARKGRAY, &camera);
 				*amount = 10f32.powf(exp) as usize;
+			}
+			Self::Collisions(collisions, running) => {
+				if *running {
+					collisions.simulate(0.016);
+				}
+				
+				let camera = camera_from_rect(Rect { x: -1.0, y: -1.0, w: 2.0, h: 2.0 });
+				set_camera(&camera);
+
+				collisions.draw()
 			}
 			_ => {}
 		}

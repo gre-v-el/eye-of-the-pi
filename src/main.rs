@@ -2,6 +2,7 @@ mod state;
 mod darts;
 mod ui;
 mod toothpicks;
+mod collisions;
 
 use std::f64::consts::PI;
 
