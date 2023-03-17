@@ -1,5 +1,7 @@
 use macroquad::prelude::*;
 
+use crate::{HIT_COL, MISS_COL};
+
 pub struct Toothpicks {
 	camera: Camera2D,
 	target: RenderTarget,
@@ -54,14 +56,28 @@ impl Toothpicks {
 			x1 += x0;
 			y1 += y0;
 
-			draw_line(x0, y0, x1, y1, self.toothpick_length*0.05, WHITE);
+			
+			let cell0 = (x0*self.subdivisions as f32).floor();
+			let cell1 = (x1*self.subdivisions as f32).floor();
 
+			let hit = cell0 != cell1;
+
+			if hit {
+				self.hits += 1;
+			}
+
+			let col = if hit { HIT_COL } else { MISS_COL };
+
+			
+			draw_line(x0, y0, x1, y1, self.toothpick_length*0.05, col);
 		}
 		pop_camera_state();
 	}
 
-	pub fn approximate() {
-
+	pub fn approximate(&self) -> f64 {
+		// 2.0 / self.hits as f64 * self.total as f64 * self.toothpick_length as f64 * self.subdivisions as f64
+		// 2.0 * self.toothpick_length as f64 * self.total as f64 / self.hits as f64 * self.subdivisions as f64
+		2.0 * self.total as f64 / self.hits as f64
 	}
 
 	pub fn texture(&self) -> Texture2D {

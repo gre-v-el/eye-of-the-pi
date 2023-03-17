@@ -2,7 +2,7 @@ use std::f64::consts::PI;
 
 use macroquad::prelude::*;
 
-use crate::{darts::Darts, ui::*, toothpicks::Toothpicks};
+use crate::{darts::Darts, ui::*, toothpicks::Toothpicks, error};
 
 pub enum State {
 	Menu,
@@ -23,7 +23,7 @@ impl State {
 					new_state = Some(State::Darts(Darts::new(), false, 1000));
 				}
 				if button(Rect { x: -0.3, y: -0.2, w: 0.6, h: 0.2 }, DARKGRAY, "Toothpicks", &camera, font, 0.15) {
-					new_state = Some(State::Toothpicks(Toothpicks::new(5, 0.1), false, 10));
+					new_state = Some(State::Toothpicks(Toothpicks::new(5, 0.2), false, 10));
 				}
 			}
 			Self::Darts(darts, running, amount) => {
@@ -49,7 +49,7 @@ impl State {
 				draw_centered_text_stable(vec2(right, 0.7), format!("{:.6}", darts.approximate()).as_str(), "0.00000", font, 0.2);
 				draw_centered_text(vec2(left, 0.7), "4*hits/total:", font, 0.2);
 
-				draw_centered_text_stable(vec2(right, 0.9), format!("{:.2}%", 100.0*(darts.approximate()-PI)/PI).as_str(), "0.00000", font, 0.2);
+				draw_centered_text_stable(vec2(right, 0.9), format!("{:.2}%", error(darts.approximate())).as_str(), "0.00000", font, 0.2);
 				draw_centered_text(vec2(left, 0.9), "error:", font, 0.2);
 
 				if button(Rect { x: -0.9, y: -0.9, w: 0.3, h: 0.15 }, DARKGRAY, "Back", &camera, font, 0.1) {
@@ -61,7 +61,7 @@ impl State {
 				}
 
 				let mut exp = (*amount as f32).log10();
-				slider(&mut exp, 0.0, 4.0, vec2(0.6, -0.2), 0.3, DARKGRAY, &camera);
+				slider(&mut exp, 0.0, 5.0, vec2(0.6, -0.2), 0.3, DARKGRAY, &camera);
 				*amount = 10f32.powf(exp) as usize;
 			}
 			Self::Toothpicks(toothpics, running, amount) => {
@@ -74,8 +74,20 @@ impl State {
 
 				draw_texture_ex(toothpics.texture(), -0.5, -0.9, WHITE, DrawTextureParams { dest_size: Some(vec2(1.0, 1.0)), ..Default::default()});
 
+				let left = -0.45;
+				let right = 0.6;
 
+				draw_centered_text_stable(vec2(right, 0.3), format!("{}", toothpics.total()).as_str(), "00000", font, 0.2);
+				draw_centered_text(vec2(left, 0.3), "total:", font, 0.2);
 
+				draw_centered_text_stable(vec2(right, 0.5), format!("{}", toothpics.hits()).as_str(), "00000", font, 0.2);
+				draw_centered_text(vec2(left, 0.5), "hits:", font, 0.2);
+
+				draw_centered_text_stable(vec2(right, 0.7), format!("{:.6}", toothpics.approximate()).as_str(), "0.00000", font, 0.2);
+				draw_centered_text(vec2(left, 0.7), "2*total/hits:", font, 0.2);
+
+				draw_centered_text_stable(vec2(right, 0.9), format!("{:.2}%", error(toothpics.approximate())).as_str(), "0.00000", font, 0.2);
+				draw_centered_text(vec2(left, 0.9), "error:", font, 0.2);
 
 				if button(Rect { x: -0.9, y: -0.9, w: 0.3, h: 0.15 }, DARKGRAY, "Back", &camera, font, 0.1) {
 					new_state = Some(State::Menu);
@@ -86,7 +98,7 @@ impl State {
 				}
 
 				let mut exp = (*amount as f32).log10();
-				slider(&mut exp, 0.0, 4.0, vec2(0.6, -0.2), 0.3, DARKGRAY, &camera);
+				slider(&mut exp, 0.0, 5.0, vec2(0.6, -0.2), 0.3, DARKGRAY, &camera);
 				*amount = 10f32.powf(exp) as usize;
 			}
 			_ => {}

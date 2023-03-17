@@ -1,5 +1,7 @@
 use macroquad::prelude::*;
 
+use crate::{HIT_COL, MISS_COL};
+
 pub struct Darts {
 	camera: Camera2D,
 	target: RenderTarget,
@@ -38,9 +40,9 @@ impl Darts {
 			if hit {
 				self.hits += 1;
 			}
-			let col = if hit { Color { r: 0.2, g: 0.9, b: 0.2, a: 1.0} } else { Color { r: 0.7, g: 0.7, b: 0.7, a: 1.0} };
+			let col = if hit { HIT_COL } else { MISS_COL };
 
-			draw_circle(x, y, 0.01, col);
+			draw_rectangle(x-0.05, y-0.05, 0.01, 0.01, col);
 		}
 		pop_camera_state();
 	}
