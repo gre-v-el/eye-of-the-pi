@@ -1,6 +1,7 @@
 mod state;
 mod darts;
 mod ui;
+mod toothpicks;
 
 use macroquad::prelude::*;
 use state::State;
