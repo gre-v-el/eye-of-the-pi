@@ -18,13 +18,13 @@ impl State {
 			Self::Menu => {
 				let camera = camera_from_rect(Rect { x: -1.0, y: -1.0, w: 2.0, h: 2.0 });
 				set_camera(&camera);
-				if button(Rect { x: -0.3, y: -0.5, w: 0.6, h: 0.2 }, DARKGRAY, "Darts", &camera, font, 0.15) {
+				if button(Rect { x: -0.4, y: -0.5, w: 0.8, h: 0.2 }, DARKGRAY, "Darts", &camera, font, 0.15) {
 					new_state = Some(State::Darts(Darts::new(), false, 1000));
 				}
-				if button(Rect { x: -0.3, y: -0.2, w: 0.6, h: 0.2 }, DARKGRAY, "Toothpicks", &camera, font, 0.15) {
+				if button(Rect { x: -0.4, y: -0.2, w: 0.8, h: 0.2 }, DARKGRAY, "Toothpicks", &camera, font, 0.15) {
 					new_state = Some(State::Toothpicks(Toothpicks::new(5, 0.2), false, 10));
 				}
-				if button(Rect { x: -0.3, y:  0.1, w: 0.6, h: 0.2 }, DARKGRAY, "Collisions", &camera, font, 0.15) {
+				if button(Rect { x: -0.4, y:  0.1, w: 0.8, h: 0.2 }, DARKGRAY, "Collisions", &camera, font, 0.15) {
 					new_state = Some(State::Collisions(Collisions::new(1000000000000.0), true));
 				}
 			}
@@ -105,13 +105,27 @@ impl State {
 			}
 			Self::Collisions(collisions, running) => {
 				if *running {
-					collisions.simulate(0.003);
+					collisions.simulate(0.005);
 				}
 				
 				let camera = camera_from_rect(Rect { x: -1.0, y: -1.0, w: 2.0, h: 2.0 });
 				set_camera(&camera);
 
-				collisions.draw()
+				draw_centered_text(vec2(0.0, 0.5), format!("{}", collisions.hits()).as_str(), font, 0.3);
+
+				if button(Rect { x: -0.9, y: -0.3, w: 0.3, h: 0.15 }, DARKGRAY, "Back", &camera, font, 0.1) {
+					new_state = Some(State::Menu);
+				}
+				
+				if button(Rect { x: 0.6, y: -0.3, w: 0.3, h: 0.15 }, DARKGRAY, if *running {"Pause"} else {"Play"}, &camera, font, 0.1) {
+					*running = !(*running);
+				}
+
+				let mut exp = (collisions.mass_ratio).log10().round() as f32;
+				slider(&mut exp, 0.0, 12.0, vec2(-0.15, -0.2), 0.3, DARKGRAY, &camera);
+				collisions.mass_ratio = 10f64.powi(exp as i32);
+
+				collisions.draw(&camera)
 			}
 			_ => {}
 		}

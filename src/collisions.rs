@@ -14,7 +14,7 @@ pub struct Collisions {
 	next_keyframe_time: f64,
 	prev_keyframe: Keyframe,
 	next_keyframe: Keyframe,
-	mass_ratio: f64,
+	pub mass_ratio: f64,
 	finished: bool,
 }
 
@@ -33,11 +33,9 @@ impl Collisions {
 	}
 
 	pub fn simulate(&mut self, dt: f64) {
-		if self.finished { return; }
-
 		self.simulation_time += dt;
 
-		while self.simulation_time > self.next_keyframe_time {
+		while self.simulation_time > self.next_keyframe_time && !self.finished {
 			let u1 = (self.next_keyframe.x1 - self.prev_keyframe.x1)/(self.next_keyframe_time - self.prev_keyframe_time);
 			let u2 = (self.next_keyframe.x2 - self.prev_keyframe.x2)/(self.next_keyframe_time - self.prev_keyframe_time);
 			
@@ -50,15 +48,16 @@ impl Collisions {
 				let v1 = (m1 - m2)/(m1 + m2)*u1 + 2.0 * m2 / (m1 + m2)*u2;
 				let v2 = 2.0 * m1 / (m1 + m2) * u1 + (m2 - m1) / (m1 + m2) * u2;
 
-				let t = -self.next_keyframe.x1 / v1;
+				let mut t = -self.next_keyframe.x1 / v1;
 
 				if t < 0.0 {
+					t = 1.0;
+					
 					self.finished = true;
-					return;
 				}
 
 				swap(&mut self.prev_keyframe, &mut self.next_keyframe);
-				self.next_keyframe = Keyframe { x1: 0.0, x2: self.prev_keyframe.x2 + v2 * t };
+				self.next_keyframe = Keyframe { x1: self.prev_keyframe.x1 + t * v1, x2: self.prev_keyframe.x2 + v2 * t };
 
 				self.prev_keyframe_time = self.next_keyframe_time;
 				self.next_keyframe_time += t;
@@ -67,11 +66,12 @@ impl Collisions {
 				let v1 = -u1;
 				let v2 =  u2;
 
-				let t = (self.next_keyframe.x2 - self.next_keyframe.x1) / (v1 - v2);
+				let mut t = (self.next_keyframe.x2 - self.next_keyframe.x1) / (v1 - v2);
 
 				if t < 0.0 {
+					t = 1.0;
+
 					self.finished = true;
-					return;
 				}
 
 				swap(&mut self.prev_keyframe, &mut self.next_keyframe);
@@ -85,17 +85,23 @@ impl Collisions {
 		}
 	}
 
-	pub fn draw(&self) {
-		draw_line(-0.7, -0.9, -0.7, -0.4, 0.01, WHITE);
-		draw_line(0.7, -0.4, -0.7, -0.4, 0.01, WHITE);
+	pub fn draw(&self, camera: &Camera2D) {
+		let left = camera.screen_to_world(vec2(20.0, 0.0)).x;
+		let right = camera.screen_to_world(vec2(screen_width(), 0.0)).x;
+		draw_line(left, -0.9, left, -0.4, 0.01, WHITE);
+		draw_line(left, -0.4, right, -0.4, 0.01, WHITE);
 
 		let t = (self.simulation_time - self.prev_keyframe_time)/(self.next_keyframe_time - self.prev_keyframe_time);
-		let x1 = (t * self.next_keyframe.x1 + (1.0-t) * self.prev_keyframe.x1)/3.0 - 0.7;
-		let x2 = (t * self.next_keyframe.x2 + (1.0-t) * self.prev_keyframe.x2)/3.0 - 0.7;
+		let x1 = (t * self.next_keyframe.x1 + (1.0-t) * self.prev_keyframe.x1)/3.0 + left as f64;
+		let x2 = (t * self.next_keyframe.x2 + (1.0-t) * self.prev_keyframe.x2)/3.0 + left as f64;
 
+		let x = self.mass_ratio.log10() as f32;
+		let size_ratio = 4.5 * (1.0 + 1.0/(-0.2*x-1.0)) + 1.0;
 		draw_rectangle(x1 as f32, -0.5, 0.1, 0.1, BLUE);
-		draw_rectangle(x2 as f32 + 0.1, -0.6, 0.2, 0.2, BLUE);
+		draw_rectangle(x2 as f32 + 0.1, -0.4-0.1*size_ratio, 0.1*size_ratio, 0.1*size_ratio, BLUE);
+	}
 
-		println!("{}", self.hits);
+	pub fn hits(&self) -> usize {
+		self.hits
 	}
 }
