@@ -16,8 +16,13 @@ impl State {
 		let font = Font::default();
 		match self {
 			Self::Menu => {
+				let font = Font::default();
+
 				let camera = camera_from_rect(Rect { x: -1.0, y: -1.0, w: 2.0, h: 2.0 });
 				set_camera(&camera);
+
+				draw_centered_text(vec2(0.0, -0.7), "Eye Of The PI", font, 0.25);
+
 				if button(Rect { x: -0.4, y: -0.5, w: 0.8, h: 0.2 }, DARKGRAY, "Darts", &camera, font, 0.15) {
 					new_state = Some(State::Darts(Darts::new(), false, 1000));
 				}
