@@ -2,6 +2,8 @@ use std::mem::swap;
 
 use macroquad::{shapes::draw_line, prelude::*};
 
+use crate::ui::draw_centered_text;
+
 pub struct Keyframe {
 	x1: f64,
 	x2: f64,
@@ -86,6 +88,8 @@ impl Collisions {
 	}
 
 	pub fn draw(&self, camera: &Camera2D) {
+		let font = Font::default();
+
 		let left = camera.screen_to_world(vec2(20.0, 0.0)).x;
 		let right = camera.screen_to_world(vec2(screen_width(), 0.0)).x;
 		draw_line(left, -0.9, left, -0.4, 0.01, WHITE);
@@ -98,7 +102,10 @@ impl Collisions {
 		let x = self.mass_ratio.log10() as f32;
 		let size_ratio = 4.5 * (1.0 + 1.0/(-0.2*x-1.0)) + 1.0;
 		draw_rectangle(x1 as f32, -0.5, 0.1, 0.1, BLUE);
-		draw_rectangle(x2 as f32 + 0.1, -0.4-0.1*size_ratio, 0.1*size_ratio, 0.1*size_ratio, BLUE);
+		draw_rectangle(x2 as f32 + 0.1, -0.4-0.1*size_ratio, 0.1*size_ratio, 0.1*size_ratio, ORANGE);
+
+		draw_centered_text(vec2(x1 as f32 + 0.05, -0.45), "1", font, 0.1);
+		draw_centered_text(vec2(x2 as f32+0.1 + 0.05*size_ratio, -0.4-0.05*size_ratio), format!("{}", self.mass_ratio).as_str(), font, 0.1);
 	}
 
 	pub fn hits(&self) -> usize {

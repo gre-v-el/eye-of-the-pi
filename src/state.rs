@@ -25,7 +25,7 @@ impl State {
 					new_state = Some(State::Toothpicks(Toothpicks::new(5, 0.2), false, 10));
 				}
 				if button(Rect { x: -0.4, y:  0.1, w: 0.8, h: 0.2 }, DARKGRAY, "Collisions", &camera, font, 0.15) {
-					new_state = Some(State::Collisions(Collisions::new(1000000000000.0), true));
+					new_state = Some(State::Collisions(Collisions::new(100.0), false));
 				}
 			}
 			Self::Darts(darts, running, amount) => {
@@ -121,9 +121,13 @@ impl State {
 					*running = !(*running);
 				}
 
-				let mut exp = (collisions.mass_ratio).log10().round() as f32;
-				slider(&mut exp, 0.0, 12.0, vec2(-0.15, -0.2), 0.3, DARKGRAY, &camera);
-				collisions.mass_ratio = 10f64.powi(exp as i32);
+				if button(Rect { x: 0.6, y: -0.1, w: 0.3, h: 0.15 }, DARKGRAY, "reset", &camera, font, 0.1) {
+					new_state = Some(Self::Collisions(Collisions::new(collisions.mass_ratio), false));
+				}
+
+				let mut exp = ((collisions.mass_ratio).log10() / 2.0).round() as f32;
+				slider(&mut exp, 0.0, 6.0, vec2(-0.15, -0.2), 0.3, DARKGRAY, &camera);
+				collisions.mass_ratio = 100f64.powi(exp as i32);
 
 				collisions.draw(&camera)
 			}
